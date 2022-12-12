@@ -22,16 +22,16 @@ async function skipDays(d: number) {
     ethers.provider.send('evm_mine', []);
 }
 
-describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
+describe("Cvx Eth Alluo Vault Upgradeable Tests", function () {
     let signers: SignerWithAddress[];
     let usdc: IERC20MetadataUpgradeable, usdt: IERC20MetadataUpgradeable, frax: IERC20MetadataUpgradeable, crv: IERC20MetadataUpgradeable, cvx: IERC20MetadataUpgradeable, weth: IERC20MetadataUpgradeable;
     let cvxBooster: ICvxBooster;
     let exchange: Exchange;
     const ZERO_ADDR = ethers.constants.AddressZero;
-    let AlluoVault : AlluoVaultUpgradeable;
-    let rewardToken :IERC20MetadataUpgradeable;
-    let cvxEth : IERC20MetadataUpgradeable;
-    let alluoPool : IAlluoPool;
+    let AlluoVault: AlluoVaultUpgradeable;
+    let rewardToken: IERC20MetadataUpgradeable;
+    let cvxEth: IERC20MetadataUpgradeable;
+    let alluoPool: IAlluoPool;
 
     before(async function () {
         //We are forking Polygon mainnet, please set Alchemy key in .env
@@ -62,7 +62,7 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         weth = await ethers.getContractAt("IERC20MetadataUpgradeable", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
         cvxBooster = await ethers.getContractAt("ICvxBooster", "0xF403C135812408BFbE8713b5A23a04b3D48AAE31");
         exchange = await ethers.getContractAt("Exchange", "0x29c66CF57a03d41Cfe6d9ecB6883aa0E2AbA21Ec")
-        cvxEth =  await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
+        cvxEth = await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
         rewardToken = await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
 
         const value = parseEther("2000.0");
@@ -84,17 +84,17 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         const cvxEthPool = await ethers.getContractAt("ICurvePool", "0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4")
 
         let gnosis = await getImpersonatedSigner("0x1F020A4943EB57cd3b2213A66b355CB662Ea43C3")
-        await signers[0].sendTransaction({to: gnosis.address, value: parseEther("100")})
+        await signers[0].sendTransaction({ to: gnosis.address, value: parseEther("100") })
 
         await exchange.connect(gnosis).registerAdapters([deployedAdapter.address], [11])
-        let cvxEthEdge = { swapProtocol: 11, pool: cvxEthPool.address, fromCoin: cvxEth.address, toCoin: weth.address};
+        let cvxEthEdge = { swapProtocol: 11, pool: cvxEthPool.address, fromCoin: cvxEth.address, toCoin: weth.address };
         await (await exchange.connect(gnosis).createMinorCoinEdge([cvxEthEdge])).wait();
     });
 
     beforeEach(async () => {
-        const cvxEthPool = await ethers.getContractAt("ICurvePool", "0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4")  
+        const cvxEthPool = await ethers.getContractAt("ICurvePool", "0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4")
         const value = parseEther("100.0");
-      
+
         await exchange.exchange(
             ZERO_ADDR, cvxEth.address, value, 0, { value: value }
         )
@@ -129,15 +129,15 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
             cvx.address
         ]) as AlluoVaultPool
         await AlluoVault.setPool(alluoPool.address);
-    
+
         await AlluoVault.grantRole("0x0000000000000000000000000000000000000000000000000000000000000000", alluoPool.address)
-        
+
     });
 
     afterEach(async () => {
         expect(await AlluoVault.totalSupply()).equal(await AlluoVault.totalAssets());
     })
-    it("Deposit some LP", async function() {
+    it("Deposit some LP", async function () {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         console.log("Balance before of Cvx-ETH Lp", lpBalance)
         await cvxEth.approve(AlluoVault.address, ethers.constants.MaxUint256);
@@ -146,8 +146,8 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         expect(Number(await AlluoVault.balanceOf(signers[0].address))).greaterThan(0);
         expect(Number(lpBalance)).equal(Number(await AlluoVault.balanceOf(signers[0].address)));
     })
-   
-    it("Deposit some LP and wait for rewards to accumulate", async function() {
+
+    it("Deposit some LP and wait for rewards to accumulate", async function () {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         console.log("Balance before of Cvx-ETH Lp", lpBalance)
         await cvxEth.approve(AlluoVault.address, ethers.constants.MaxUint256);
@@ -161,11 +161,11 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         const crvAccumulated = await crv.balanceOf(AlluoVault.address);
         const cvxAccumulated = await cvx.balanceOf(AlluoVault.address);
         console.log(crvAccumulated)
-        console.log(cvxAccumulated)        
+        console.log(cvxAccumulated)
         expect(Number(crvAccumulated)).greaterThan(0)
         expect(Number(cvxAccumulated)).greaterThan(0)
     })
-    it("Wait for rewards then loop rewards.", async function() {
+    it("Wait for rewards then loop rewards.", async function () {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         console.log("Balance before of Cvx-ETH Lp", lpBalance)
         await cvxEth.approve(AlluoVault.address, ethers.constants.MaxUint256);
@@ -177,7 +177,7 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         console.log("crv-ETH staked", await alluoPool.fundsLocked());
         expect(Number(await alluoPool.fundsLocked())).greaterThan(0);
     })
-    it("Deposit some Lp for vault tokens and then burn them for the same LPs back.", async function() {
+    it("Deposit some Lp for vault tokens and then burn them for the same LPs back.", async function () {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         await cvxEth.approve(AlluoVault.address, ethers.constants.MaxUint256);
         await AlluoVault.deposit(lpBalance, signers[0].address);
@@ -186,7 +186,7 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         await skipDays(0.01);
         await alluoPool.farm();
 
-       
+
         await AlluoVault.withdraw(lpBalance, signers[0].address, signers[0].address);
         await AlluoVault.claimRewards();
 
@@ -198,7 +198,7 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         expect(Number(await AlluoVault.totalAssets())).equal(0)
         expect(Number(await AlluoVault.totalSupply())).equal(0)
     })
-    it("After looping rewards, expect fundsLocked to increase.", async function() {
+    it("After looping rewards, expect fundsLocked to increase.", async function () {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         console.log("Balance before of Cvx-ETH Lp", lpBalance)
         await cvxEth.approve(AlluoVault.address, ethers.constants.MaxUint256);
@@ -212,8 +212,8 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
 
         await skipDays(0.01);
         await alluoPool.claimRewardsFromPool();
-        
-        
+
+
         const crvAccumulated = await crv.balanceOf(alluoPool.address);
         const cvxAccumulated = await cvx.balanceOf(alluoPool.address);
         console.log(crvAccumulated)
@@ -227,7 +227,7 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         console.log("crv-ETH staked after", await alluoPool.fundsLocked());
         expect(Number(compoundedRewards)).greaterThan(Number(initialRewards));
     })
-    it("Deposit frax to enter pool.", async function() {
+    it("Deposit frax to enter pool.", async function () {
         // const fraxBalance = await frax.balanceOf(signers[0].address);
         // console.log("Balance before of Frax balance", fraxBalance)
         const fraxBalance = parseEther("100");
@@ -247,10 +247,10 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         expect(Number(cvxAccumulated)).greaterThan(0)
     })
 
-    it("Deposit usdc to enter pool.", async function() {
+    it("Deposit usdc to enter pool.", async function () {
         // const fraxBalance = await frax.balanceOf(signers[0].address);
         // console.log("Balance before of Frax balance", fraxBalance)
-        const usdcBalance = parseUnits("100",6);
+        const usdcBalance = parseUnits("100", 6);
         await usdc.approve(AlluoVault.address, ethers.constants.MaxUint256);
         await AlluoVault.depositWithoutLP(usdcBalance, usdc.address);
         await AlluoVault.stakeUnderlying();
@@ -265,9 +265,9 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         expect(Number(cvxAccumulated)).greaterThan(0)
     })
 
-    it("Deposit usdt to enter pool (non pool token).", async function() {
+    it("Deposit usdt to enter pool (non pool token).", async function () {
 
-        const usdtBalance = parseUnits("100",6);
+        const usdtBalance = parseUnits("100", 6);
         await usdt.approve(AlluoVault.address, ethers.constants.MaxUint256);
         await AlluoVault.depositWithoutLP(usdtBalance, usdt.address);
         await AlluoVault.stakeUnderlying();
@@ -282,10 +282,10 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         expect(Number(cvxAccumulated)).greaterThan(0)
     })
 
-    it("Deposit usdc to enter pool and exit again in USDC", async function() {
+    it("Deposit usdc to enter pool and exit again in USDC", async function () {
         // const fraxBalance = await frax.balanceOf(signers[0].address);
         // console.log("Balance before of Frax balance", fraxBalance)
-        const usdcBalance = parseUnits("100",6);
+        const usdcBalance = parseUnits("100", 6);
         await usdc.approve(AlluoVault.address, ethers.constants.MaxUint256);
         await AlluoVault.depositWithoutLP(usdcBalance, usdc.address);
         await AlluoVault.stakeUnderlying();
@@ -297,8 +297,8 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
 
     })
 
-    it("Deposit usdt to enter pool (non pool token) and exit again in a non pool token.", async function() {
-        const usdtBalance = parseUnits("100",6);
+    it("Deposit usdt to enter pool (non pool token) and exit again in a non pool token.", async function () {
+        const usdtBalance = parseUnits("100", 6);
         await usdt.approve(AlluoVault.address, ethers.constants.MaxUint256);
         await AlluoVault.depositWithoutLP(usdtBalance, usdt.address);
         await AlluoVault.stakeUnderlying();
@@ -308,8 +308,8 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         await AlluoVault.withdrawToNonLp(lpBalance, signers[0].address, signers[0].address, usdt.address)
     })
 
-    it("Multiple deposits and withdrawals should return correct LP amounts", async function() {
-        let signerBalancesBefore =[]
+    it("Multiple deposits and withdrawals should return correct LP amounts", async function () {
+        let signerBalancesBefore = []
         for (let i = 1; i < 6; i++) {
             await exchange.connect(signers[i]).exchange(
                 ZERO_ADDR, cvxEth.address, parseEther("10"), 0, { value: parseEther("10") }
@@ -329,11 +329,11 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
             expect(Number(await AlluoVault.balanceOf(signers[i].address))).equal(0);
         }
 
-        for (let i =0; i< 5; i++) {
-            expect(Number(signerBalancesBefore[i])).equal(Number(await cvxEth.balanceOf(signers[i+1].address)))
+        for (let i = 0; i < 5; i++) {
+            expect(Number(signerBalancesBefore[i])).equal(Number(await cvxEth.balanceOf(signers[i + 1].address)))
         }
-    }) 
-    it("Multiple deposits should return correct LP amounts and reward distribution (equal here)", async function() {
+    })
+    it("Multiple deposits should return correct LP amounts and reward distribution (equal here)", async function () {
         for (let i = 1; i < 6; i++) {
             await exchange.connect(signers[i]).exchange(
                 ZERO_ADDR, cvxEth.address, parseEther("10"), 0, { value: parseEther("10") }
@@ -358,10 +358,10 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
             expect(Number(await rewardToken.balanceOf(signers[i].address)).toPrecision(2)).equal(Number(expectBalance).toPrecision(2))
             console.log(`Reward tokens for signer ${i}: ${await rewardToken.balanceOf(signers[i].address)}`)
         }
-    }) 
+    })
 
-   
-    it("Multiple deposits and withdrawals in nonLP tokens should return correct LP amounts and reward distribution (equal here)", async function() {
+
+    it("Multiple deposits and withdrawals in nonLP tokens should return correct LP amounts and reward distribution (equal here)", async function () {
         for (let i = 1; i < 6; i++) {
             await exchange.connect(signers[i]).exchange(
                 ZERO_ADDR, frax.address, parseEther("10"), 0, { value: parseEther("10") }
@@ -393,9 +393,9 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         }
         expect(await AlluoVault.totalSupply()).equal(await AlluoVault.totalAssets());
 
-    }) 
+    })
 
-    it("After some loops, the multisig should be able to claim fees accumulated.", async function() {
+    it("After some loops, the multisig should be able to claim fees accumulated.", async function () {
         await AlluoVault.setAdminFee(100);
         for (let i = 1; i < 6; i++) {
             await exchange.connect(signers[i]).exchange(
@@ -415,5 +415,5 @@ describe("Cvx Eth Alluo Vault Upgradeable Tests", function() {
         await AlluoVault.connect(signers[1]).claimRewards();
         let gnosis = "0x1F020A4943EB57cd3b2213A66b355CB662Ea43C3"
         expect(Number(await AlluoVault.earned(gnosis))).greaterThan(0);
-    }) 
+    })
 })

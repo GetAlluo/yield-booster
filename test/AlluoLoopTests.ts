@@ -22,21 +22,23 @@ async function skipDays(d: number) {
     ethers.provider.send('evm_mine', []);
 }
 
-describe("Alluo Pool Tests", function() {
+describe("Alluo Pool Tests", function () {
     let signers: SignerWithAddress[];
     let usdc: IERC20MetadataUpgradeable, usdt: IERC20MetadataUpgradeable, frax: IERC20MetadataUpgradeable, crv: IERC20MetadataUpgradeable, cvx: IERC20MetadataUpgradeable, weth: IERC20MetadataUpgradeable;
     let cvxBooster: ICvxBooster;
     let exchange: Exchange;
     const ZERO_ADDR = ethers.constants.AddressZero;
-    let AlluoVault1 : AlluoVaultUpgradeable;
-    let AlluoVault2 : AlluoVaultUpgradeable;
-    let AlluoVault3 : AlluoVaultUpgradeable;
+    let AlluoVault1: AlluoVaultUpgradeable;
+    let AlluoVault2: AlluoVaultUpgradeable;
+    let AlluoVault3: AlluoVaultUpgradeable;
 
-    let rewardToken :IERC20MetadataUpgradeable;
-    let cvxEth : IERC20MetadataUpgradeable;
-    let alluoPool : IAlluoPool;
+    let rewardToken: IERC20MetadataUpgradeable;
+    let cvxEth: IERC20MetadataUpgradeable;
+    let alluoPool: IAlluoPool;
 
     before(async () => {
+        console.log('\n', "||| Confirm that the _grantRoles(.., msg.sender) in AlluoVaultUpgradeable.sol has been uncommented to ensure tests are functioning correctly |||", '\n')
+
     });
 
     beforeEach(async () => {
@@ -51,7 +53,6 @@ describe("Alluo Pool Tests", function() {
                 },
             },],
         });
-        console.log('\n', "||| Confirm that the _grantRoles(.., msg.sender) in AlluoVaultUpgradeable.sol has been uncommented to ensure tests are functioning correctly |||", '\n')
         signers = await ethers.getSigners();
 
         usdc = await ethers.getContractAt("IERC20MetadataUpgradeable", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
@@ -62,7 +63,7 @@ describe("Alluo Pool Tests", function() {
         weth = await ethers.getContractAt("IERC20MetadataUpgradeable", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
         cvxBooster = await ethers.getContractAt("ICvxBooster", "0xF403C135812408BFbE8713b5A23a04b3D48AAE31");
         exchange = await ethers.getContractAt("Exchange", "0x29c66CF57a03d41Cfe6d9ecB6883aa0E2AbA21Ec")
-        cvxEth =  await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
+        cvxEth = await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
         rewardToken = await ethers.getContractAt("IERC20MetadataUpgradeable", "0x3A283D9c08E8b55966afb64C515f5143cf907611");
 
         let value = parseEther("2000.0");
@@ -78,9 +79,9 @@ describe("Alluo Pool Tests", function() {
             ZERO_ADDR, usdc.address, value, 0, { value: value }
         )
 
-        const cvxEthPool = await ethers.getContractAt("ICurvePool", "0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4")  
+        const cvxEthPool = await ethers.getContractAt("ICurvePool", "0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4")
         value = parseEther("100.0");
-      
+
         await exchange.exchange(
             ZERO_ADDR, cvxEth.address, value, 0, { value: value }
         )
@@ -138,7 +139,7 @@ describe("Alluo Pool Tests", function() {
             initializer: 'initialize',
             kind: 'uups'
         }) as AlluoVaultUpgradeable;
-        
+
         let PoolVaultFactory = await ethers.getContractFactory("AlluoVaultPool");
 
         alluoPool = await upgrades.deployProxy(PoolVaultFactory, [
@@ -166,7 +167,7 @@ describe("Alluo Pool Tests", function() {
 
     afterEach(async () => {
     })
-   it("One user, multiple vaults", async () => {
+    it("One user, multiple vaults", async () => {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
         const deposit = lpBalance.div(4)
         console.log("Balance before of Cvx-ETH Lp", deposit)
@@ -190,7 +191,7 @@ describe("Alluo Pool Tests", function() {
         expect(Number(await AlluoVault2.earned(signers[0].address))).greaterThan(0)
         expect(Number(await AlluoVault3.earned(signers[0].address))).greaterThan(0)
 
-   }) 
+    })
 
     it("One user, multiple vaults, two loops", async () => {
         const lpBalance = await cvxEth.balanceOf(signers[0].address);
@@ -234,7 +235,7 @@ describe("Alluo Pool Tests", function() {
         userBalance = await usdc.balanceOf(signers[0].address);
         await AlluoVault3.claimRewardsInNonLp(usdc.address);
         expect(Number(await usdc.balanceOf(signers[0].address))).greaterThan(Number(userBalance))
-        
+
         // Skip 7 days to bypass whaleProtection
         await skipDays(7);
         await AlluoVault1.withdraw(await AlluoVault1.balanceOf(signers[0].address), signers[0].address, signers[0].address)
@@ -242,10 +243,10 @@ describe("Alluo Pool Tests", function() {
         await AlluoVault3.withdraw(await AlluoVault3.balanceOf(signers[0].address), signers[0].address, signers[0].address)
 
         expect(await cvxEth.balanceOf(signers[0].address)).equal(lpBalance);
-    }) 
+    })
 
     it("Multiple depositors, single vault, two loops", async () => {
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             getLPTokens(signers[i], parseEther("10"))
             const lpBalance = await cvxEth.balanceOf(signers[i].address);
             await cvxEth.connect(signers[i]).approve(AlluoVault1.address, ethers.constants.MaxUint256);
@@ -257,12 +258,12 @@ describe("Alluo Pool Tests", function() {
         await skipDays(0.1);
         await alluoPool.farm();
 
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).claimRewards();
         }
-    }) 
+    })
     it("Multiple depositors, multiple vaults, two loops", async () => {
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             getLPTokens(signers[i], parseEther("10"))
             const lpBalance = await cvxEth.balanceOf(signers[i].address);
             const deposit = lpBalance.div(3)
@@ -277,26 +278,26 @@ describe("Alluo Pool Tests", function() {
             await cvxEth.connect(signers[i]).approve(AlluoVault3.address, ethers.constants.MaxUint256);
             await AlluoVault3.connect(signers[i]).deposit(deposit, signers[i].address);
             await AlluoVault3.connect(signers[i]).stakeUnderlying();
-            
+
         }
         await skipDays(0.01);
         await alluoPool.farm();
         await skipDays(0.1);
         await alluoPool.farm();
 
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).claimRewards();
             await AlluoVault2.connect(signers[i]).claimRewards();
             await AlluoVault3.connect(signers[i]).claimRewards();
         }
 
-        expect(Number((Number(await alluoPool.balances(AlluoVault1.address))/10**18).toFixed(5))).equal(0)
-        expect(Number((Number(await alluoPool.balances(AlluoVault2.address))/10**18).toFixed(5))).equal(0)
-        expect(Number((Number(await alluoPool.balances(AlluoVault3.address))/10**18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault1.address)) / 10 ** 18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault2.address)) / 10 ** 18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault3.address)) / 10 ** 18).toFixed(5))).equal(0)
 
 
-        
-        for (let i =1; i< 10; i++) {
+
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).withdraw(await AlluoVault1.balanceOf(signers[i].address), signers[i].address, signers[i].address)
             await AlluoVault2.connect(signers[i]).withdraw(await AlluoVault2.balanceOf(signers[i].address), signers[i].address, signers[i].address)
             await AlluoVault3.connect(signers[i]).withdraw(await AlluoVault3.balanceOf(signers[i].address), signers[i].address, signers[i].address)
@@ -306,7 +307,7 @@ describe("Alluo Pool Tests", function() {
 
         }
 
-    }) 
+    })
 
 
     it("One user, multiple vaults, multiple loops", async () => {
@@ -324,8 +325,8 @@ describe("Alluo Pool Tests", function() {
         await cvxEth.approve(AlluoVault3.address, ethers.constants.MaxUint256);
         await AlluoVault3.deposit(deposit, signers[0].address);
         await AlluoVault3.stakeUnderlying();
-        
-        for (let j =0; j < 5; j++) {
+
+        for (let j = 0; j < 5; j++) {
             await skipDays(0.01);
             await alluoPool.farm();
             await skipDays(0.1);
@@ -340,36 +341,36 @@ describe("Alluo Pool Tests", function() {
         userBalance = await usdc.balanceOf(signers[0].address);
         await AlluoVault3.claimRewardsInNonLp(usdc.address);
         expect(Number(await usdc.balanceOf(signers[0].address))).greaterThan(Number(userBalance))
-        
+
         await AlluoVault1.withdraw(await AlluoVault1.balanceOf(signers[0].address), signers[0].address, signers[0].address)
         await AlluoVault2.withdraw(await AlluoVault2.balanceOf(signers[0].address), signers[0].address, signers[0].address)
         await AlluoVault3.withdraw(await AlluoVault3.balanceOf(signers[0].address), signers[0].address, signers[0].address)
 
         expect(await cvxEth.balanceOf(signers[0].address)).equal(lpBalance);
 
-    }) 
+    })
 
     it("Multiple depositors, single vault, multiple loops", async () => {
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             getLPTokens(signers[i], parseEther("10"))
             const lpBalance = await cvxEth.balanceOf(signers[i].address);
             await cvxEth.connect(signers[i]).approve(AlluoVault1.address, ethers.constants.MaxUint256);
             await AlluoVault1.connect(signers[i]).deposit(lpBalance, signers[i].address);
             await AlluoVault1.connect(signers[i]).stakeUnderlying();
         }
-        for (let j =0; j < 5; j++) {
+        for (let j = 0; j < 5; j++) {
             await skipDays(0.01);
             await alluoPool.farm();
             await skipDays(0.1);
             await alluoPool.farm();
         }
 
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).claimRewards();
         }
-    }) 
+    })
     it("Multiple depositors, multiple vaults, multiple loops", async () => {
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             getLPTokens(signers[i], parseEther("10"))
             const lpBalance = await cvxEth.balanceOf(signers[i].address);
             const deposit = lpBalance.div(3)
@@ -384,28 +385,28 @@ describe("Alluo Pool Tests", function() {
             await cvxEth.connect(signers[i]).approve(AlluoVault3.address, ethers.constants.MaxUint256);
             await AlluoVault3.connect(signers[i]).deposit(deposit, signers[i].address);
             await AlluoVault3.connect(signers[i]).stakeUnderlying();
-            
+
         }
-        for (let j =0; j < 5; j++) {
+        for (let j = 0; j < 5; j++) {
             await skipDays(0.01);
             await alluoPool.farm();
             await skipDays(0.1);
             await alluoPool.farm();
         }
 
-        for (let i =1; i< 10; i++) {
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).claimRewards();
             await AlluoVault2.connect(signers[i]).claimRewards();
             await AlluoVault3.connect(signers[i]).claimRewards();
         }
 
-        expect(Number((Number(await alluoPool.balances(AlluoVault1.address))/10**18).toFixed(5))).equal(0)
-        expect(Number((Number(await alluoPool.balances(AlluoVault2.address))/10**18).toFixed(5))).equal(0)
-        expect(Number((Number(await alluoPool.balances(AlluoVault3.address))/10**18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault1.address)) / 10 ** 18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault2.address)) / 10 ** 18).toFixed(5))).equal(0)
+        expect(Number((Number(await alluoPool.balances(AlluoVault3.address)) / 10 ** 18).toFixed(5))).equal(0)
 
 
-        
-        for (let i =1; i< 10; i++) {
+
+        for (let i = 1; i < 10; i++) {
             await AlluoVault1.connect(signers[i]).withdraw(await AlluoVault1.balanceOf(signers[i].address), signers[i].address, signers[i].address)
             await AlluoVault2.connect(signers[i]).withdraw(await AlluoVault2.balanceOf(signers[i].address), signers[i].address, signers[i].address)
             await AlluoVault3.connect(signers[i]).withdraw(await AlluoVault3.balanceOf(signers[i].address), signers[i].address, signers[i].address)
@@ -415,10 +416,10 @@ describe("Alluo Pool Tests", function() {
 
         }
 
-    }) 
+    })
 
 
-    async function getLPTokens(signer : SignerWithAddress, amount : BigNumber) {
+    async function getLPTokens(signer: SignerWithAddress, amount: BigNumber) {
         await exchange.connect(signer).exchange(
             ZERO_ADDR, cvxEth.address, amount, 0, { value: amount }
         )

@@ -37,9 +37,10 @@ interface ICurveCvxEth {
         uint256 min_dy
     ) external payable returns (uint256);
 
-    function add_liquidity(uint256[2] memory _amounts, uint256 _min_mint_amount) payable
-        external
-        returns (uint256);
+    function add_liquidity(
+        uint256[2] memory _amounts,
+        uint256 _min_mint_amount
+    ) external payable returns (uint256);
 
     function remove_liquidity_one_coin(
         uint256 _burn_amount,
@@ -48,12 +49,11 @@ interface ICurveCvxEth {
     ) external returns (uint256);
 }
 
-
 contract CurveCvxEthAdapter is IExchangeAdapter {
-    address public constant cvxEthLp = 0x3A283D9c08E8b55966afb64C515f5143cf907611;
+    address public constant cvxEthLp =
+        0x3A283D9c08E8b55966afb64C515f5143cf907611;
     ICurveCvxEth public constant cvxEthPool =
         ICurveCvxEth(0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4);
-
 
     function indexByCoin(address coin) public pure returns (uint256) {
         if (coin == 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2) return 1; // weth
@@ -78,7 +78,7 @@ contract CurveCvxEthAdapter is IExchangeAdapter {
         } else if (fromToken == cvxEthLp) {
             uint256 i = indexByCoin(toToken);
             require(i != 0, "CurveCvxEthAdapter: Can't Swap");
-            return curve.remove_liquidity_one_coin(amount, i-1, 0);
+            return curve.remove_liquidity_one_coin(amount, i - 1, 0);
         } else {
             revert("CurveCvxEthAdapter: Can't Swap");
         }

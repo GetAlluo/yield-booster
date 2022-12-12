@@ -47,10 +47,10 @@ interface IAlluoVault {
 
     function UPGRADER_ROLE() external view returns (bytes32);
 
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(
+        address owner,
+        address spender
+    ) external view returns (uint256);
 
     function alluoPool() external view returns (address);
 
@@ -66,27 +66,27 @@ interface IAlluoVault {
 
     function claimRewardsFromPool() external;
 
-    function convertToAssets(uint256 shares)
-        external
-        view
-        returns (uint256 assets);
+    function convertToAssets(
+        uint256 shares
+    ) external view returns (uint256 assets);
 
-    function convertToShares(uint256 assets)
-        external
-        view
-        returns (uint256 shares);
+    function convertToShares(
+        uint256 assets
+    ) external view returns (uint256 shares);
 
     function cvxBooster() external view returns (address);
 
     function decimals() external view returns (uint8);
 
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        external
-        returns (bool);
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) external returns (bool);
 
-    function deposit(uint256 assets, address receiver)
-        external
-        returns (uint256);
+    function deposit(
+        uint256 assets,
+        address receiver
+    ) external returns (uint256);
 
     function earned(address account) external view returns (uint256);
 
@@ -94,14 +94,15 @@ interface IAlluoVault {
 
     function grantRole(bytes32 role, address account) external;
 
-    function hasRole(bytes32 role, address account)
-        external
-        view
-        returns (bool);
+    function hasRole(
+        bytes32 role,
+        address account
+    ) external view returns (bool);
 
-    function increaseAllowance(address spender, uint256 addedValue)
-        external
-        returns (bool);
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) external returns (bool);
 
     function initialize(
         string memory _name,
@@ -193,9 +194,10 @@ interface IAlluoVault {
 
     function upgradeTo(address newImplementation) external;
 
-    function upgradeToAndCall(address newImplementation, bytes memory data)
-        external
-        payable;
+    function upgradeToAndCall(
+        address newImplementation,
+        bytes memory data
+    ) external payable;
 
     function userRewardPaid(address) external view returns (uint256);
 
@@ -205,5 +207,7 @@ interface IAlluoVault {
         address owner
     ) external returns (uint256);
 
-    function claimAndConvertToPoolEntryToken(address entryToken) external returns (uint256);
+    function claimAndConvertToPoolEntryToken(
+        address entryToken
+    ) external returns (uint256);
 }

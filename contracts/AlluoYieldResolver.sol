@@ -23,13 +23,13 @@ interface IFastGas {
 
 contract AlluoYieldResolver is AccessControlUpgradeable {
     bytes32 public constant VAULT = keccak256("VAULT");
-    IFastGas constant chainlinkFastGas =
+    IFastGas public constant CHAINLINK_FAST_GAS =
         IFastGas(0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C);
 
-    EnumerableSetUpgradeable.AddressSet vaults;
-    EnumerableSetUpgradeable.AddressSet boostPools;
-    mapping(address => uint256) vaultLastStake;
-    mapping(address => uint256) boostLastFarm;
+    EnumerableSetUpgradeable.AddressSet private vaults;
+    EnumerableSetUpgradeable.AddressSet private boostPools;
+    mapping(address => uint256) public vaultLastStake;
+    mapping(address => uint256) public boostLastFarm;
 
     uint256 public stakeTime;
     uint256 public farmTime;
@@ -59,7 +59,7 @@ contract AlluoYieldResolver is AccessControlUpgradeable {
     }
 
     function currentGasPriceAcceptable() public view returns (bool acceptable) {
-        (, uint256 gas, , , ) = chainlinkFastGas.latestRoundData();
+        (, uint256 gas, , , ) = CHAINLINK_FAST_GAS.latestRoundData();
         acceptable = true ? gas < maxGas : false;
     }
 
@@ -123,31 +123,28 @@ contract AlluoYieldResolver is AccessControlUpgradeable {
         boostLastFarm[boostPools.at(index)] = block.timestamp;
     }
 
-    function setStakeTime(uint256 newTime)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setStakeTime(
+        uint256 newTime
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         stakeTime = newTime;
     }
 
-    function setFarmTime(uint256 newTime)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setFarmTime(
+        uint256 newTime
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         farmTime = newTime;
     }
 
-    function setMaxGas(uint256 newMaxGas)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setMaxGas(
+        uint256 newMaxGas
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         maxGas = newMaxGas;
     }
 
-    function editVaults(bool add, address _vault)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function editVaults(
+        bool add,
+        address _vault
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (add) {
             vaults.add(_vault);
         } else {
@@ -155,10 +152,10 @@ contract AlluoYieldResolver is AccessControlUpgradeable {
         }
     }
 
-    function editboostPools(bool add, address _boostPool)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function editboostPools(
+        bool add,
+        address _boostPool
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (add) {
             boostPools.add(_boostPool);
         } else {
