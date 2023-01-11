@@ -22,7 +22,7 @@ async function skipDays(d: number) {
     ethers.provider.send('evm_mine', []);
 }
 
-describe("StEth Alluo Vault Upgradeable Tests", function() {
+describe("StEth Alluo Vault Upgradeable Tests", function () {
     let signers: SignerWithAddress[];
     let usdc: IERC20MetadataUpgradeable, usdt: IERC20MetadataUpgradeable, frax: IERC20MetadataUpgradeable, crv: IERC20MetadataUpgradeable, cvx: IERC20MetadataUpgradeable, weth: IERC20MetadataUpgradeable, ldo: IERC20MetadataUpgradeable, stEth: IERC20MetadataUpgradeable;
     let cvxBooster: ICvxBooster;
@@ -49,7 +49,8 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
     })
 
     before(async () => {
-    
+        console.log('\n', "||| Confirm that the _grantRoles(.., msg.sender) in AlluoVaultUpgradeable.sol has been uncommented to ensure tests are functioning correctly |||", '\n')
+
     });
 
     beforeEach(async () => {
@@ -95,7 +96,7 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
             ZERO_ADDR, usdc.address, value, 0, { value: value }
         )
 
-    
+
         const stEthEthPool = await ethers.getContractAt("ICurvePool", "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022")
         await stEthEthPool.add_liquidity([parseEther("1"), 0], 0, { value: parseEther("1") });
         let gnosis = "0x6b140e772aCC4D5E0d5Eac3813D586aa6DB8Fbf7";
@@ -129,7 +130,7 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
             cvx.address
         ]) as AlluoVaultPool
         await AlluoVault.setPool(alluoPool.address);
-    
+
         await AlluoVault.grantRole("0x0000000000000000000000000000000000000000000000000000000000000000", alluoPool.address)
     });
 
@@ -263,7 +264,7 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
         await skipDays(0.01);
         await AlluoVault.claimRewardsFromPool();
 
-    const crvAccumulated = await crv.balanceOf(AlluoVault.address);
+        const crvAccumulated = await crv.balanceOf(AlluoVault.address);
         const cvxAccumulated = await cvx.balanceOf(AlluoVault.address);
         const ldoAccumulated = await ldo.balanceOf(AlluoVault.address);
 
@@ -379,8 +380,8 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
             console.log(`Reward tokens for signer ${i}: ${await rewardToken.balanceOf(signers[i].address)}`)
         }
     })
-   
-    it("Multiple deposits and withdrawals in nonLP tokens should return correct LP amounts and reward distribution (equal here)", async function() {
+
+    it("Multiple deposits and withdrawals in nonLP tokens should return correct LP amounts and reward distribution (equal here)", async function () {
         for (let i = 1; i < 6; i++) {
             await exchange.connect(signers[i]).exchange(
                 ZERO_ADDR, frax.address, parseEther("10"), 0, { value: parseEther("10") }
@@ -411,7 +412,7 @@ describe("StEth Alluo Vault Upgradeable Tests", function() {
         }
         expect(await AlluoVault.totalSupply()).equal(await AlluoVault.totalAssets());
 
-    }) 
+    })
 
 
 

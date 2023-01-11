@@ -221,15 +221,20 @@ describe("Alluo Yield Resolver Tests", function () {
       await grantRoleToPool();
 
       expect((await resolver.farmingChecker()).canExec).equal(true);
+      console.log('here 1');
 
       const data = (await resolver.farmingChecker()).execPayload;
+      console.log('here 2', data);
       const tx = await getTxFromExecPayload(data);
+      console.log('here 2.1', tx);
       await signers[0].sendTransaction(tx);
 
       await skipDays(6);
+      console.log('here 3');
       expect((await resolver.farmingChecker()).canExec).equal(false);
 
       await skipDays(1);
+      console.log('here 4');
       expect((await resolver.farmingChecker()).canExec).equal(true);
     });
   });
