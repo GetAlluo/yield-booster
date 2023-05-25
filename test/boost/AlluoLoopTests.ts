@@ -5,7 +5,7 @@ import { BigNumber, BigNumberish, BytesLike, Wallet } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { ethers, network, upgrades } from "hardhat";
 import { afterEach, before } from "mocha";
-import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICurvePool, ICvxBooster, IERC20MetadataUpgradeable, IExchange } from "../typechain";
+import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICurvePool, ICvxBooster, IERC20MetadataUpgradeable, IExchange } from "../../typechain";
 
 
 async function getImpersonatedSigner(address: string): Promise<SignerWithAddress> {

@@ -2,7 +2,7 @@ import { parseEther, parseUnits } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers, network, upgrades } from "hardhat";
-import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICvxBooster, IERC20MetadataUpgradeable, IExchange, IFraxFarmERC20, AlluoLockedVault, AlluoRewardsDistributor } from "../typechain";
+import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICvxBooster, IERC20MetadataUpgradeable, IExchange, IFraxFarmERC20, AlluoLockedVault, AlluoRewardsDistributor } from "../../typechain-types";
 
 
 async function getImpersonatedSigner(address: string): Promise<SignerWithAddress> {
@@ -196,7 +196,30 @@ describe("Alluo Claim Rewards Tests", function () {
         await rewardsDistributor.editVaults(true, alluoPool2.address, [AlluoVault3.address])
 
     });
+    it("Claim in reward token from one pool MANUAL to compare gas", async () => {
 
+        const lpBalance = await cvxEth.balanceOf(signers[0].address);
+        const deposit = lpBalance.div(4)
+        await cvxEth.approve(AlluoVault1.address, ethers.constants.MaxUint256);
+        await AlluoVault1.deposit(deposit, signers[0].address);
+        await AlluoVault1.stakeUnderlying();
+
+        await skipDays(0.01);
+        await alluoPool1.farm();
+        await skipDays(7);
+
+        expect(Number(await AlluoVault1.earned(signers[0].address))).greaterThan(0)
+        const vaultBalance1 = await alluoPool1.balances(AlluoVault1.address);
+
+        console.log('balance reward token before', await rewardToken.balanceOf(signers[0].address));
+        await AlluoVault1.claimRewardsInNonLp(usdc.address)
+        console.log('\nbalance reward token  after', await rewardToken.balanceOf(signers[0].address));
+
+        const vaultBalance1after = await alluoPool1.balances(AlluoVault1.address);
+        expect(vaultBalance1after).to.be.lt(vaultBalance1);
+        expect(Number(await AlluoVault1.earned(signers[0].address))).to.be.eq(0)
+
+    })
     it("Claim in reward token from one pool", async () => {
 
         const lpBalance = await cvxEth.balanceOf(signers[0].address);

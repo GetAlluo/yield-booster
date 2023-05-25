@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {ICvxBooster} from "./interfaces/ICvxBooster.sol";
 import {IExchange} from "./interfaces/IExchange.sol";
@@ -739,7 +740,7 @@ contract AlluoLockedVault is
         address from,
         address to,
         uint256 amount
-    ) public override(ERC20Upgradeable) returns (bool) {
+    ) public override(ERC20Upgradeable, IERC20Upgradeable) returns (bool) {
         address spender = msg.sender;
         require(
             amount <=
@@ -753,7 +754,12 @@ contract AlluoLockedVault is
     function transfer(
         address to,
         uint256 amount
-    ) public virtual override(ERC20Upgradeable) returns (bool) {
+    )
+        public
+        virtual
+        override(ERC20Upgradeable, IERC20Upgradeable)
+        returns (bool)
+    {
         address owner = msg.sender;
         require(
             amount <=

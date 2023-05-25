@@ -2,7 +2,7 @@ import { parseEther, parseUnits } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers, network, upgrades } from "hardhat";
-import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICvxBooster, IERC20MetadataUpgradeable, IExchange, IFraxFarmERC20, AlluoLockedVault, AlluoRewardsDistributor } from "../typechain";
+import { AlluoVaultUpgradeable, Exchange, AlluoVaultPool, IAlluoPool, ICvxBooster, IERC20MetadataUpgradeable, IExchange, IFraxFarmERC20, AlluoLockedVault, AlluoRewardsDistributor } from "../../typechain";
 
 
 async function getImpersonatedSigner(address: string): Promise<SignerWithAddress> {

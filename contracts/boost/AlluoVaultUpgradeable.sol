@@ -68,6 +68,7 @@ contract AlluoVaultUpgradeable is
         address token;
         uint256 amount;
     }
+    event Looped(uint256 timestamp);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
@@ -133,6 +134,7 @@ contract AlluoVaultUpgradeable is
         console.log("Vault reward after", vaultRewardAfter);
         console.log("Vault rewards before", vaultRewardsBefore);
         console.log("Total rewards", totalRewards);
+        emit Looped(block.timestamp);
     }
 
     function claimAndConvertToPoolEntryToken(

@@ -57,6 +57,8 @@ contract AlluoVaultPool is
         uint256 amount;
     }
 
+    event Looped(uint256 timestamp);
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
@@ -171,6 +173,7 @@ contract AlluoVaultPool is
             address _vault = vaults.at(j);
             IAlluoVault(_vault).loopRewards();
         }
+        emit Looped(block.timestamp);
     }
 
     function _convertToSharesAfterPoolRewards(

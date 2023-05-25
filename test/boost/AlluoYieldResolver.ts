@@ -7,7 +7,7 @@ import {
   AlluoYieldResolver,
   IERC20MetadataUpgradeable,
   Exchange,
-} from "../typechain";
+} from "../../typechain";
 
 describe("Alluo Yield Resolver Tests", function () {
   let gnosis: SignerWithAddress;

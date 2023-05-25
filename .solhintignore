@@ -1,3 +1,5 @@
 node_modules
-contracts/mock
-contracts/interfaces
+contracts/boost/mock
+contracts/omnivault/mock
+contracts/omnivault/interfaces
+contracts/boost/interfaces
